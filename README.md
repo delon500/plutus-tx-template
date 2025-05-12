@@ -1,60 +1,149 @@
-# Plinth Template Repository 
+# 📦 Auction Validator Project
 
-A template repository for your Plinth smart contract project.
+### Updated by Coxygen Global - Bernard Sibanda
 
-Plinth currently supports GHC `v9.2.x` and `v9.6.x`. Cabal `v3.8+` is recommended.
+## 📑 Table of Contents
 
-### 1. Create the repository
+1. [⚙️ Project Overview](#1-project-overview)
+2. [⚙️ Environment Setup](#2-environment-setup)
+3. [📂 Directory Structure](#3-directory-structure)
+4. [🛠️ Installation & Build](#4-installation--build)
+5. [🔬 Testing](#5-testing)
+6. [🧪 Property-Based Testing](#6-property-based-testing)
+7. [🚀 Usage](#7-usage)
+8. [📖 Glossary](#8-glossary)
 
-- From the command line:
+---
 
-  ```
-  gh repo create my-project --private --template IntersectMBO/plinth-template
-  ```
+## 1. ⚙️ Project Overview
 
-- Or from the [GitHub web page](https://github.com/IntersectMBO/plinth-template), click the top-right green button:
+This repository contains a Plutus-based Auction Validator smart contract along with tooling to generate Blueprints and comprehensive test suites. It is part of the **Plinth Template** for teaching on-chain development on Cardano.
 
-  `Use this template -> Create new repository`
+## 2. ⚙️ Environment Setup
 
-- Or just fork/clone `plinth-template` (but note that this is a template repository)
+Follow these steps to prepare your environment:
 
-  More information on GitHub template repositories can be found [here](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+```bash
+# 1. Enter the Nix shell (requires Nix installed)
+nix-shell
 
-### 2. Setup your development environment
+# 2. Update Cabal package index
+cabal update
 
-- With Nix (**recommended**)
+# 3. Ensure project dependencies are available
+cabal build --enable-tests
+```
 
-  Follow [these instructions](https://github.com/input-output-hk/iogx/blob/main/doc/nix-setup-guide.md) to install and configure nix, *even if you already have it installed*.
+> **Note:** If you do not use Nix, skip the `nix-shell` step and ensure you have GHC and Cabal installed via the Haskell Platform.
 
-  Then enter the shell using `nix develop`.
+## 3. 📂 Directory Structure
 
-  The nix files inside this template follow the [`iogx` flake](https://github.com/input-output-hk/iogx), but you can delete and replace them with your own. In that case, you might want to include the [`devx` flake](https://github.com/input-output-hk/devx/issues) in your flake inputs as a starting point to supply all the necessary dependencies, making sure to use one of the `-iog` flavours.
+```text
+auction/                     # Project root
+├── app/                     # Executables for Blueprint generation
+│   ├── GenAuctionValidatorBlueprint.hs
+│   └── GenMintingPolicyBlueprint.hs
+├── src/                     # On-chain library modules
+│   └── AuctionValidator.hs
+├── test/                    # Test suite files
+│   ├── AuctionValidatorSpec.hs            # Unit tests
+│   ├── AuctionMintingPolicySpec.hs        # Minting policy tests
+│   └── AuctionValidatorProperties.hs      # QuickCheck properties
+├── default.nix              # Nix definition (if applicable)
+├── shell.nix                # Nix shell entry (if applicable)
+├── auction.cabal            # Cabal project configuration
+├── cabal.project            # Root project settings
+└── cabal.project.local      # Local overrides (e.g., tests: True)
+```
 
-- With Docker / Devcontainers / Codespaces
+## 4. 🛠️ Installation & Build
 
-  From the [GitHub web page](https://github.com/IntersectMBO/plinth-template), click the top-right green button:
+1. **Enter Nix shell (optional)**:
 
-  `Use this template -> Open in a codespace`
+   ```bash
+   nix-shell
+   ```
+2. **Update Cabal index**:
 
-  Or let VSCode create a local codespace for you when you open this project.
+   ```bash
+   cabal update
+   ```
+3. **Install dependencies & build**:
 
-  You can modify your [`devcontainer.json`](./.devcontainer/devcontainer.json) file to customize the container (more info [here](https://github.com/input-output-hk/devx?tab=readme-ov-file#vscode-devcontainer--github-codespace-support)).
+   ```bash
+   cabal build --enable-tests
+   ```
+4. **Generate Blueprints**:
 
-  Or using your local docker installation (change the `/path/to/my-project` accordingly):
-  ```
-  docker run \
-    -v /path/to/my-project:/workspaces/my-project \
-    -it ghcr.io/input-output-hk/devx-devcontainer:x86_64-linux.ghc96-iog
-  ```
+   ```bash
+   cabal run gen-auction-validator-blueprint -- ./blueprint-auction.json
+   cabal run gen-minting-policy-blueprint -- ./blueprint-minting.json
+   ```
 
-  When using this approach, you can ignore/delete/replace the nix files entirely.
+## 5. 🔬 Testing
 
-- With manually-installed dependencies (**not recommended**)
+### Run Unit Tests
 
-  Follow the instructions for [cardano-node](https://github.com/input-output-hk/cardano-node-wiki/blob/main/docs/getting-started/install.md) for a custom setup.
+```bash
+cabal test auction-tests
+```
 
-  When using this approach, you can ignore/delete/replace the nix files entirely.
+### Run All Tests
 
-### 3. Run the example application
+```bash
+cabal test
+```
 
-Run `cabal update` first, then read [Example: An Auction Smart Contract](https://plutus.cardano.intersectmbo.org/docs/category/example-an-auction-smart-contract) to get started.
+* **`auction-tests`**: Unit tests for the Auction Validator.
+* **`minting-tests`**: Unit tests for the Minting Policy (if configured).
+
+## 6. 🧪 Property-Based Testing
+
+To verify invariants using QuickCheck:
+
+1. Add a QuickCheck test suite entry in your `.cabal`:
+
+   ```cabal
+   test-suite auction-properties
+     type: exitcode-stdio-1.0
+     main-is: AuctionValidatorProperties.hs
+     hs-source-dirs: test
+     build-depends:
+         base >=4.7 && <5,
+       , scripts,
+       , QuickCheck,
+       , plutus-ledger-api,
+       , plutus-tx,
+       , test-framework
+     default-language: Haskell2010
+   ```
+2. Run the property suite:
+
+   ```bash
+   cabal test auction-properties
+   ```
+
+## 7. 🚀 Usage
+
+* **Deploy** your compiled Plutus script on a Cardano network by submitting the generated blueprint JSON via your deployment tooling.
+* **Customize** `AuctionParams` (seller, currency symbol, token name, minimum bid, end time) in `GenAuctionValidatorBlueprint.hs` before generating the blueprint.
+* **Extend** the contract logic in `src/AuctionValidator.hs` and re-run tests to ensure correctness.
+
+## 8. 📖 Glossary
+
+| Term              | Description                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| **Cabal**         | Haskell’s package manager and build tool.                                          |
+| **GHC**           | The Glasgow Haskell Compiler.                                                      |
+| **Plutus**        | Cardano’s on-chain smart contract platform.                                        |
+| **TxInfo**        | Metadata about a transaction passed to a Plutus validator.                         |
+| **ScriptContext** | Context for script execution, including `TxInfo` and `ScriptPurpose`.              |
+| **AssocMap**      | Plutus’s internal map type for associating keys to values (e.g., Datum, Redeemer). |
+| **hspec**         | A behavior-driven testing framework for Haskell.                                   |
+| **QuickCheck**    | A property-based testing library for Haskell.                                      |
+| **Blueprint**     | JSON representation of a Plutus script and its parameters, for off-chain tooling.  |
+
+---
+
+*Updated by Coxygen Global - Bernard Sibanda*
+*Date: 12 May 2025*
