@@ -4,14 +4,14 @@
 
 ## 📑 Table of Contents
 
-1. [⚙️ Project Overview](#1-project-overview)
-2. [⚙️ Environment Setup](#2-environment-setup)
-3. [📂 Directory Structure](#3-directory-structure)
-4. [🛠️ Installation & Build](#4-installation--build)
-5. [🔬 Testing](#5-testing)
-6. [🧪 Property-Based Testing](#6-property-based-testing)
-7. [🚀 Usage](#7-usage)
-8. [📖 Glossary](#8-glossary)
+1. [⚙️ Project Overview](#1. ⚙️ Project Overview)
+2. [⚙️ Environment Setup](#2. ⚙️ Environment Setup)
+3. [📂 Directory Structure](#3. 📂 Directory Structure)
+4. [🛠️ Installation & Build](#4. 🛠️ Installation & Build)
+5. [🔬 Testing](#5. 🔬 Testing)
+6. [🧪 Property-Based Testing](#6. 🧪 Property-Based Testing)
+7. [🚀 Usage](#7. 🚀 Usage)
+8. [📖 Glossary](#8. 📖 Glossary)
 
 ---
 
